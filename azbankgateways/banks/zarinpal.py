@@ -2,6 +2,10 @@ import logging
 
 import requests
 
+from urllib.parse import urljoin
+
+from django.conf import settings as django_settings
+
 from azbankgateways.banks import BaseBank
 from azbankgateways.exceptions import SettingDoesNotExist
 from azbankgateways.exceptions.exceptions import (
@@ -60,13 +64,18 @@ class Zarinpal(BaseBank):
     def get_pay_data(self):
         description = "خرید با شماره پیگیری - {}".format(self.get_tracking_code())
 
+        SITE_URL = getattr(django_settings, "SITE_URL", None)
+        if not SITE_URL:
+            SITE_URL = ""
+        callback_url = urljoin(SITE_URL, self._get_gateway_callback_url())
+
         data = {
             "description": description,
             "merchant_id": self._merchant_code,
             "amount": self.get_gateway_amount(),
             "currency": self.get_gateway_currency(),
             "metadata": {},
-            "callback_url": self._get_gateway_callback_url(),
+            "callback_url": callback_url,
         }
         mobile_number = self.get_mobile_number()
         if mobile_number:

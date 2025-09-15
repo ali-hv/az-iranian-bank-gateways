@@ -294,7 +294,11 @@ class BaseBank:
             self.set_amount(amount)
         else:
             self.set_amount(10000)
-        self.set_client_callback_url("/")
+
+        SITE_URL = "/"
+        if hasattr(django_settings, "SITE_URL"):
+            SITE_URL = django_settings.SITE_URL
+        self.set_client_callback_url(SITE_URL)
 
     def check_gateway(self, amount=None):
         """با این متد از صحت و سلامت گیت وی برای اتصال اطمینان حاصل می کنیم."""
